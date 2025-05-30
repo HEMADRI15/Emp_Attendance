@@ -1,7 +1,10 @@
-﻿using System;
+﻿using Microsoft.Reporting.WebForms;
+using System;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Drawing;
+using System.IO;
 using System.Web.UI.WebControls;
 
 namespace EmployeeAttendanceModule
@@ -15,6 +18,7 @@ namespace EmployeeAttendanceModule
             if (!IsPostBack)
             {
                 BindGrid();
+                
             }
         }
 
@@ -144,5 +148,24 @@ namespace EmployeeAttendanceModule
                 ClearForm();
             }
         }
+        protected void btnGenerateReport_Click(object sender, EventArgs e)
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                SqlCommand cmd = new SqlCommand("SELECT * FROM EmployeeAttendance ORDER BY AttendanceDate DESC", conn);
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+
+                ReportViewer1.LocalReport.DataSources.Clear();
+                ReportDataSource ds = new ReportDataSource("DataSet1", dt); // Match this with your RDLC DataSet name
+                ReportViewer1.LocalReport.ReportPath = Server.MapPath("~/Report1.rdlc");
+                ReportViewer1.LocalReport.DataSources.Add(ds);
+                ReportViewer1.LocalReport.Refresh();
+            }
+        }
+       
+            
+
     }
 }
